@@ -9,20 +9,15 @@
       content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <!-- 1. Основные библиотеки A-Frame и AR.js -->
+    <!-- Библиотеки -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-
-    <!-- 2. НОВАЯ БИБЛИОТЕКА: Для вращения и зума пальцами -->
     <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
 
     <style>
       body {
         margin: 0;
         overflow: hidden;
-        position: absolute;
-        width: 100%;
-        height: 100%;
         background-color: black;
       }
       #arjs-video {
@@ -57,10 +52,9 @@
 
   <body>
     <div class="arjs-loader">
-      <div>Loading AR models...<br />(Please wait ~10-20 sec)</div>
+      <div>Loading...<br />(Earth fixed!)</div>
     </div>
 
-    <!-- 3. Добавили gesture-detector в сцену -->
     <a-scene
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono; matrixCodeType: 3x3;"
@@ -76,21 +70,28 @@
       const githubUrl = "https://qoziwe.github.io/Adalyat3DModels";
 
       window.addEventListener("arjs-nft-loaded", function (ev) {
-        console.log("NFT markers loaded!");
+        console.log("NFT loaded");
       });
 
-      // === НАСТРОЙКИ ===
-      // s: 30 для Солнца, 10 для планет (теперь они крупные)
-      // x: 150 (сдвиг вправо к центру, так как картинка широкая)
-      // y: 100 (сдвиг вверх)
+      // === ИНДИВИДУАЛЬНЫЕ РАЗМЕРЫ ===
+      // Мы сильно уменьшаем гигантов и сильно увеличиваем Землю
 
       const planets = [
-        { file: "sun", s: 30, x: 150, y: 100, z: 10 },
+        // Солнце: Было 30 -> Стало 6 (Уменьшили в 5 раз)
+        { file: "sun", s: 6, x: 150, y: 100, z: 10 },
 
-        { file: "mercury", s: 8, x: 150, y: 100, z: 10 },
-        { file: "venus", s: 10, x: 150, y: 100, z: 10 },
-        { file: "earth", s: 10, x: 150, y: 100, z: 10 },
-        { file: "mars", s: 9, x: 150, y: 100, z: 10 },
+        // Меркурий: Было 8 -> Стало 3 (Уменьшили)
+        { file: "mercury", s: 3, x: 150, y: 100, z: 10 },
+
+        // Венера: Было 10 -> Стало 3 (Уменьшили)
+        { file: "venus", s: 3, x: 150, y: 100, z: 10 },
+
+        // === ЗЕМЛЯ ===
+        // Было 10 -> Стало 40 !!! (Увеличили в 4 раза, так как модель сама по себе мелкая)
+        { file: "earth", s: 40, x: 150, y: 100, z: 10 },
+
+        // Марс: Было 9 -> Стало 3 (Уменьшили)
+        { file: "mars", s: 3, x: 150, y: 100, z: 10 },
       ];
 
       const scene = document.querySelector("a-scene");
@@ -105,26 +106,20 @@
         nft.setAttribute("smoothCount", "10");
         nft.setAttribute("smoothTolerance", ".01");
         nft.setAttribute("smoothThreshold", "5");
-
-        // Важно: чтобы жесты работали, мы передаем события внутрь
         nft.setAttribute("emitevents", "true");
 
         const model = document.createElement("a-entity");
         model.setAttribute("gltf-model", `./MODELS/${p.file}.glb`);
 
+        // Применяем масштаб
         model.setAttribute("scale", `${p.s} ${p.s} ${p.s}`);
+
+        // Позиция
         model.setAttribute("position", `${p.x} ${p.y} ${p.z}`);
 
-        // === ВРАЩЕНИЕ ПАЛЬЦАМИ ===
-        // Я убрал автоматическую анимацию, чтобы вы могли крутить сами.
-        // class="clickable" нужен для работы скрипта жестов
+        // Включаем вращение пальцами
         model.setAttribute("class", "clickable");
-
-        // gesture-handler включает управление пальцами
-        // minScale/maxScale ограничивает зум
         model.setAttribute("gesture-handler", "minScale: 0.25; maxScale: 10");
-
-        // Начальный поворот (если планета лежит боком, можно поменять на 90 0 0)
         model.setAttribute("rotation", "0 0 0");
 
         nft.appendChild(model);
