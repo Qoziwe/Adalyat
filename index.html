@@ -4,8 +4,6 @@
     <title>AR Solar System</title>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-    <!-- Важно для телефонов: отключаем зум -->
     <meta
       name="viewport"
       content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
@@ -15,7 +13,6 @@
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
     <style>
-      /* 1. Основные стили страницы */
       body {
         margin: 0;
         overflow: hidden;
@@ -24,9 +21,6 @@
         height: 100%;
         background-color: black;
       }
-
-      /* 2. ИСПРАВЛЕНИЕ КАМЕРЫ И СЕРОЙ ПОЛОСЫ */
-      /* Этот стиль принудительно растягивает видео с камеры на весь экран */
       #arjs-video {
         width: 100% !important;
         height: 100% !important;
@@ -36,8 +30,6 @@
         z-index: -1;
         object-fit: cover !important;
       }
-
-      /* 3. Экран загрузки */
       .arjs-loader {
         height: 100%;
         width: 100%;
@@ -64,7 +56,6 @@
       <div>Loading AR models...<br />(Please wait ~10-20 sec)</div>
     </div>
 
-    <!-- Убрали жесткие sourceWidth, чтобы AR.js сам подстроился под телефон -->
     <a-scene
       embedded
       arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono; matrixCodeType: 3x3;"
@@ -76,21 +67,27 @@
     </a-scene>
 
     <script>
-      // === ВАЖНО: Полный путь к вашему сайту ===
-      // Это решает ошибку "Error in loading marker on Worker"
       const githubUrl = "https://qoziwe.github.io/Adalyat3DModels";
 
       window.addEventListener("arjs-nft-loaded", function (ev) {
         console.log("NFT markers loaded!");
-        // Можно скрыть загрузчик, но AR.js делает это сам, когда находит маркер
       });
 
+      // === НАСТРОЙКИ РАЗМЕРА И ПОЗИЦИИ ===
+      // s: Масштаб (Scale). Было 2, стало 150 (в 75 раз больше!)
+      // x: Сдвиг вправо (по горизонтали)
+      // y: Сдвиг вверх (по вертикали)
+      // z: Сдвиг на себя (глубина). 50 — чтобы модель немного "парила" над экраном
+      
       const planets = [
-        { file: "sun", s: 2, d: 25000 },
-        { file: "mercury", s: 0.4, d: 10000 },
-        { file: "venus", s: 0.8, d: 15000 },
-        { file: "earth", s: 0.8, d: 12000 },
-        { file: "mars", s: 0.6, d: 12000 },
+        // Солнце делаем самым большим
+        { file: "sun", s: 150, x: 150, y: 150, z: 50, d: 25000 },
+        
+        // Планеты поменьше (примерно в 3-4 раза меньше солнца)
+        { file: "mercury", s: 40, x: 150, y: 150, z: 50, d: 10000 },
+        { file: "venus", s: 60, x: 150, y: 150, z: 50, d: 15000 },
+        { file: "earth", s: 60, x: 150, y: 150, z: 50, d: 12000 },
+        { file: "mars", s: 50, x: 150, y: 150, z: 50, d: 12000 },
       ];
 
       const scene = document.querySelector("a-scene");
@@ -99,28 +96,33 @@
         const markerName = p.nftName || p.file;
         const nft = document.createElement("a-nft");
 
-        // === ИСПРАВЛЕНИЕ ПУТЕЙ ===
-        // 1. Для NFT используем полный путь (githubUrl)
         nft.setAttribute("type", "nft");
         nft.setAttribute("url", `${githubUrl}/NFT/${markerName}`);
-
-        // Настройки плавности
         nft.setAttribute("smooth", "true");
         nft.setAttribute("smoothCount", "10");
         nft.setAttribute("smoothTolerance", ".01");
         nft.setAttribute("smoothThreshold", "5");
 
         const model = document.createElement("a-entity");
-
-        // 2. Для моделей используем относительный путь (./MODELS/)
-        // Убедитесь, что папка MODELS написана большими буквами
         model.setAttribute("gltf-model", `./MODELS/${p.file}.glb`);
+        
+        // Применяем новый масштаб
         model.setAttribute("scale", `${p.s} ${p.s} ${p.s}`);
-        model.setAttribute("position", "0 0 0");
+        
+        // Применяем новую позицию (x, y, z)
+        // В NFT координатах: X - вправо, Y - вверх (глубина картинки), Z - на нас
+        // Иногда оси перепутаны в зависимости от модели, но обычно так:
+        model.setAttribute("position", `${p.x} ${p.y} ${p.z}`);
+        
+        // Добавляем поворот на 90 градусов, чтобы планета "встала" лицом к зрителю
+        // Если планета лежит боком, попробуйте rotation="-90 0 0" или "90 0 0"
         model.setAttribute(
           "animation",
           `property: rotation; to: 0 360 0; loop: true; dur: ${p.d}; easing: linear`
         );
+        
+        // Если модель нужно повернуть изначально (например, она лежит "плашмя")
+        // model.setAttribute("rotation", "90 0 0"); 
 
         nft.appendChild(model);
         scene.appendChild(nft);
