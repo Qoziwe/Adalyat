@@ -1,117 +1,631 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ru">
   <head>
-    <title>AR Solar System</title>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
-
-    <!-- Библиотеки -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
-    <script src="https://raw.githack.com/fcor/arjs-gestures/master/dist/gestures.js"></script>
-
+    <title>💘 Твоя открытка</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
     <style>
-      /* === СТАНДАРТНЫЕ СТИЛИ === */
-      /* Не используем ничего лишнего, только база */
-      body {
+      /* === СТИЛИ НЕ ТРОНУТЫ === */
+      * {
         margin: 0;
-        overflow: hidden;
-        font-family: sans-serif;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", "Segoe UI", sans-serif;
+        -webkit-tap-highlight-color: transparent;
       }
-
-      /* Загрузчик - фиксируем на весь экран */
-      .arjs-loader {
-        height: 100vh;
-        width: 100vw;
-        position: fixed; /* Используем fixed, чтобы он точно был поверх всего */
-        top: 0;
-        left: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        z-index: 9999;
+      body {
+        min-height: 100vh;
+        background: radial-gradient(circle at 10% 30%, #ffe6f0, #ffb6c1);
+        background-attachment: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        overflow: hidden;
+      }
+      .floating-heart {
+        position: fixed;
+        top: -10vh;
+        font-size: 24px;
+        color: rgba(255, 80, 120, 0.35);
+        animation: fall 10s linear infinite;
+        pointer-events: none;
+        z-index: 1;
+      }
+      @keyframes fall {
+        0% {
+          transform: translateY(-10vh) rotate(0deg);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(110vh) rotate(360deg);
+          opacity: 0.2;
+        }
+      }
+      .card {
+        width: 100%;
+        max-width: 700px;
+        background: rgba(255, 245, 245, 0.8);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 48px 48px 32px 32px;
+        box-shadow:
+          0 25px 40px rgba(220, 20, 60, 0.2),
+          0 0 0 2px rgba(255, 255, 255, 0.5) inset;
+        padding: 40px 30px;
+        position: relative;
+        z-index: 20;
+        border: 1px solid rgba(255, 200, 210, 0.7);
+        text-align: center;
+      }
+      .card::before {
+        content: "❤️";
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 40px;
+        color: #ff4d6d;
+        text-shadow: 0 0 15px white;
+        background: rgba(255, 255, 240, 0.7);
+        padding: 5px 20px;
+        border-radius: 50px;
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        font-size: 2.3rem;
+        font-weight: 700;
+        color: #b13b4b;
+        text-shadow:
+          2px 2px 0 #ffe9f0,
+          4px 4px 10px rgba(255, 105, 180, 0.3);
+        letter-spacing: 2px;
+        margin-bottom: 45px;
+        margin-top: 20px;
+        animation: pulse 2s infinite ease-in-out;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+          text-shadow:
+            4px 4px 0 #ffe9f0,
+            8px 8px 15px hotpink;
+        }
+      }
+      .buttons {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 25px;
+        margin: 30px 0;
+        min-height: 120px;
+      }
+      .btn-yes,
+      .btn-no {
+        border: none;
+        padding: 16px 40px;
+        font-size: 1.8rem;
+        font-weight: bold;
+        border-radius: 60px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        letter-spacing: 2px;
+        border: 2px solid white;
+        min-width: 160px;
+        transition:
+          transform 0.1s ease,
+          box-shadow 0.1s ease;
+        touch-action: none;
+      }
+      .btn-yes {
+        background: linear-gradient(145deg, #ff758c, #ff4d6d);
+        color: white;
+        text-shadow: 0 2px 0 #a11f33;
+        border-bottom: 6px solid #b33b4b;
+        box-shadow:
+          0 10px 0 #b33b4b,
+          0 12px 25px rgba(200, 0, 80, 0.3);
+        z-index: 100;
+      }
+      .btn-yes i {
+        animation: heartbeat 1.3s infinite;
+      }
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        25% {
+          transform: scale(1.2);
+        }
+        50% {
+          transform: scale(0.9);
+        }
+      }
+      .btn-no {
+        background: linear-gradient(145deg, #444, #222);
+        color: #eee;
+        text-shadow: 0 2px 0 black;
+        border-bottom: 6px solid #111;
+        box-shadow:
+          0 10px 0 #1a1a1a,
+          0 12px 25px rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+        position: relative;
+      }
+      .btn-no.runaway {
+        position: fixed;
+        margin: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        transition:
+          left 0.2s ease-out,
+          top 0.2s ease-out;
+      }
+      .btn-no i {
+        color: #ff9999;
+      }
+      .message-area {
+        min-height: 80px;
+        margin-top: 20px;
         display: flex;
         justify-content: center;
         align-items: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #a13e4a;
+        background: rgba(255, 215, 220, 0.5);
+        backdrop-filter: blur(8px);
+        border-radius: 60px;
+        padding: 15px 25px;
+        border: 2px dashed #ff8c9a;
+        text-align: center;
+        visibility: hidden;
+        transition: 0.2s;
+        box-shadow: 0 5px 15px rgba(255, 140, 170, 0.3);
+      }
+      .message-area.visible {
+        visibility: visible;
+        animation: popIn 0.4s ease-out;
+      }
+      @keyframes popIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.5) translateY(20px);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+      .screamer-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(15px);
+      }
+      .screamer-content {
+        background: radial-gradient(circle at 30% 30%, #ff1a1a, #660000);
+        padding: 40px;
+        border-radius: 50%;
+        width: 380px;
+        height: 380px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 10px solid white;
+        box-shadow: 0 0 100px red;
+        color: white;
+        text-align: center;
+        animation: pop 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+      }
+      .screamer-content i {
+        font-size: 100px;
+        margin-bottom: 20px;
+        color: #ffe600;
+      }
+      .screamer-content h2 {
+        font-size: 48px;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-shadow: 5px 5px 0 black;
       }
 
-      .arjs-loader div {
+      /* === ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ ЛИСТКА БУМАГИ, ЦВЕТОВ И ФЕЙЕРВЕРКОВ === */
+      .final-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(40, 10, 20, 0.6);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 5000;
+        backdrop-filter: blur(8px);
+      }
+      #fireworksCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+      .paper-sheet {
+        background: #fffdf5;
+        background-image:
+          linear-gradient(
+            90deg,
+            transparent 39px,
+            #abced4 39px,
+            #abced4 41px,
+            transparent 41px
+          ),
+          linear-gradient(#eee 1px, transparent 1px);
+        background-size:
+          100% 100%,
+          100% 25px;
+        width: 90%;
+        max-width: 450px;
+        padding: 80px 40px;
+        border-radius: 2px;
+        box-shadow:
+          0 20px 50px rgba(0, 0, 0, 0.4),
+          5px 5px 0px #e0d8c0;
+        position: relative;
         text-align: center;
-        font-size: 1.25em;
-        color: white;
+        border: 1px solid #d4ccb0;
+        animation: paperPop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      @keyframes paperPop {
+        0% {
+          transform: scale(0.5) translateY(100px) rotate(-15deg);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1) translateY(0) rotate(0deg);
+          opacity: 1;
+        }
+      }
+      .paper-sheet h2 {
+        font-size: 3.5rem;
+        color: #c44557;
+        font-family: "Brush Script MT", cursive, "Dancing Script", sans-serif;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        line-height: 1.2;
+      }
+      .bouquet {
+        position: absolute;
+        font-size: 120px; /* Увеличенный размер */
+        bottom: -40px;
+        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.2));
+        animation: bouquetAppear 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+          forwards;
+        opacity: 0;
+        z-index: 5001;
+      }
+      .bouquet-left {
+        left: -60px;
+        animation-delay: 0.4s;
+      }
+      .bouquet-right {
+        right: -60px;
+        animation-delay: 0.6s;
+      }
+      @keyframes bouquetAppear {
+        0% {
+          transform: translateY(50px) scale(0) rotate(-45deg);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0) scale(1) rotate(0deg);
+          opacity: 1;
+        }
+      }
+
+      @media (max-width: 600px) {
+        h1 {
+          font-size: 1.6rem;
+        }
+        .btn-yes,
+        .btn-no {
+          padding: 12px 24px;
+          font-size: 1.4rem;
+          min-width: 120px;
+        }
+        .card {
+          padding: 30px 15px;
+          border-radius: 32px;
+        }
+        .screamer-content {
+          width: 280px;
+          height: 280px;
+        }
+        .screamer-content h2 {
+          font-size: 30px;
+        }
+        .bouquet {
+          font-size: 80px;
+        }
+        .bouquet-left {
+          left: -30px;
+        }
+        .bouquet-right {
+          right: -30px;
+        }
+      }
+      /* Новый контейнер для летающей кнопки */
+      #noContainer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 2000;
       }
     </style>
   </head>
-
   <body>
-    <!-- Загрузчик -->
-    <div class="arjs-loader">
-      <div>Loading AR...<br />(Please wait)</div>
+    <div id="heart-container"></div>
+    <!-- Контейнер для новой кнопки -->
+    <div id="noContainer"></div>
+
+    <div class="card" id="mainCard">
+      <h1>❤️ Останешься со мной после школы? ❤️</h1>
+
+      <div class="buttons">
+        <button class="btn-yes" id="yesBtn">
+          <i class="fas fa-heart"></i> ДА
+        </button>
+        <button class="btn-no" id="noBtn">
+          <i class="fas fa-skull"></i> НЕТ
+        </button>
+      </div>
+
+      <div class="message-area" id="messageBox">
+        <i
+          class="fas fa-heart-broken"
+          style="margin-right: 12px; color: #ff4d6d; font-size: 1.8rem"
+        ></i>
+        <span id="messageText"></span>
+      </div>
     </div>
 
-    <!-- Сцена -->
-    <a-scene
-      embedded
-      arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono; matrixCodeType: 3x3;"
-      renderer="logarithmicDepthBuffer: true; precision: medium;"
-      vr-mode-ui="enabled: false"
-      gesture-detector
-      id="scene"
-    >
-      <a-entity camera></a-entity>
-    </a-scene>
+    <div class="screamer-overlay" id="screamer">
+      <div class="screamer-content">
+        <i class="fas fa-ghost"></i>
+        <h2>БУ!</h2>
+        <p style="font-size: 20px; margin-top: 15px">Все равно останешься ❤️</p>
+      </div>
+    </div>
+
+    <!-- ФИНАЛЬНЫЙ ЛИСТОК С ФЕЙЕРВЕРКАМИ -->
+    <div class="final-overlay" id="finalOverlay">
+      <canvas id="fireworksCanvas"></canvas>
+      <div class="paper-sheet">
+        <h2>Люблю тебя</h2>
+        <div class="bouquet bouquet-left">💐</div>
+        <div class="bouquet bouquet-right">💐</div>
+      </div>
+    </div>
 
     <script>
-      const githubUrl = "https://qoziwe.github.io/Adalyat3DModels";
+      (function () {
+        "use strict";
 
-      // === СКРИПТ ДЛЯ ИСПРАВЛЕНИЯ РАЗМЕРА КАМЕРЫ ===
-      // Этот код сработает, когда страница загрузится, и поправит размер видео
-      window.onload = function () {
-        setTimeout(() => {
-          window.dispatchEvent(new Event("resize"));
-        }, 1000); // Ждем 1 секунду и обновляем экран
-      };
+        const noBtn = document.getElementById("noBtn");
+        const yesBtn = document.getElementById("yesBtn");
+        const messageBox = document.getElementById("messageBox");
+        const messageText = document.getElementById("messageText");
+        const screamer = document.getElementById("screamer");
+        const noContainer = document.getElementById("noContainer");
+        const finalOverlay = document.getElementById("finalOverlay");
+        const canvas = document.getElementById("fireworksCanvas");
+        const ctx = canvas.getContext("2d");
 
-      window.addEventListener("arjs-nft-loaded", function (ev) {
-        console.log("NFT loaded");
-      });
+        let count = 0;
+        let activeNoBtn = noBtn;
 
-      // === ВАШИ ПЛАНЕТЫ (Настройки сохранены) ===
-      const planets = [
-        { file: "sun", s: 6, x: 150, y: 100, z: 10 },
-        { file: "mercury", s: 3, x: 150, y: 100, z: 10 },
-        { file: "venus", s: 3, x: 150, y: 100, z: 10 },
-        { file: "earth", s: 40, x: 150, y: 100, z: 10 }, // Земля большая
-        { file: "mars", s: 3, x: 150, y: 100, z: 10 },
-      ];
+        const phrases = [
+          "Неужели правда нет?",
+          "А может подумаешь?",
+          "Ну как так то",
+          "Ну можеет нажмешь да?",
+          "Вот как, ну и ладно",
+          "Вот как, ну и ладно",
+        ];
 
-      const scene = document.querySelector("a-scene");
+        /* --- ЛОГИКА ФЕЙЕРВЕРКОВ --- */
+        let particles = [];
+        function createParticle(x, y) {
+          const count = 30;
+          const colors = [
+            "#ff4d6d",
+            "#ffeb3b",
+            "#03a9f4",
+            "#e91e63",
+            "#ffffff",
+          ];
+          for (let i = 0; i < count; i++) {
+            particles.push({
+              x: x,
+              y: y,
+              angle: Math.random() * Math.PI * 2,
+              speed: Math.random() * 6 + 2,
+              friction: 0.95,
+              gravity: 0.1,
+              life: 1,
+              decay: Math.random() * 0.02 + 0.01,
+              color: colors[Math.floor(Math.random() * colors.length)],
+            });
+          }
+        }
 
-      planets.forEach((p) => {
-        const markerName = p.nftName || p.file;
-        const nft = document.createElement("a-nft");
+        function animateFireworks() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach((p, i) => {
+            p.speed *= p.friction;
+            p.x += Math.cos(p.angle) * p.speed;
+            p.y += Math.sin(p.angle) * p.speed + p.gravity;
+            p.life -= p.decay;
+            if (p.life <= 0) particles.splice(i, 1);
+            else {
+              ctx.globalAlpha = p.life;
+              ctx.fillStyle = p.color;
+              ctx.beginPath();
+              ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+          if (finalOverlay.style.display === "flex") {
+            if (Math.random() < 0.05)
+              createParticle(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height * 0.5,
+              );
+            requestAnimationFrame(animateFireworks);
+          }
+        }
 
-        nft.setAttribute("type", "nft");
-        nft.setAttribute("url", `${githubUrl}/NFT/${markerName}`);
-        nft.setAttribute("smooth", "true");
-        nft.setAttribute("smoothCount", "10");
-        nft.setAttribute("smoothTolerance", ".01");
-        nft.setAttribute("smoothThreshold", "5");
-        nft.setAttribute("emitevents", "true");
+        function startFireworks() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          animateFireworks();
+        }
 
-        const model = document.createElement("a-entity");
-        model.setAttribute("gltf-model", `./MODELS/${p.file}.glb`);
-        model.setAttribute("scale", `${p.s} ${p.s} ${p.s}`);
-        model.setAttribute("position", `${p.x} ${p.y} ${p.z}`);
-        model.setAttribute("class", "clickable");
-        model.setAttribute("gesture-handler", "minScale: 0.25; maxScale: 10");
-        model.setAttribute("rotation", "0 0 0");
+        function createFloatingHeart() {
+          const heart = document.createElement("div");
+          heart.className = "floating-heart";
+          heart.innerHTML = "❤️";
+          heart.style.left = Math.random() * 100 + "%";
+          heart.style.fontSize = Math.random() * 20 + 20 + "px";
+          heart.style.animationDuration = Math.random() * 5 + 5 + "s";
+          document.body.appendChild(heart);
+          setTimeout(() => heart.remove(), 10000);
+        }
+        setInterval(createFloatingHeart, 500);
 
-        nft.appendChild(model);
-        scene.appendChild(nft);
-      });
+        function moveNoButton(e) {
+          if (e) e.preventDefault();
+          if (activeNoBtn === noBtn) {
+            noBtn.style.display = "none";
+            const newBtn = document.createElement("button");
+            newBtn.className = "btn-no runaway";
+            newBtn.innerHTML = noBtn.innerHTML;
+            newBtn.style.pointerEvents = "auto";
+            noContainer.appendChild(newBtn);
+            activeNoBtn = newBtn;
+            activeNoBtn.addEventListener("mouseenter", moveNoButton);
+            activeNoBtn.addEventListener("touchstart", moveNoButton, {
+              passive: false,
+            });
+            activeNoBtn.addEventListener("click", (ev) => {
+              ev.preventDefault();
+              moveNoButton(ev);
+            });
+          }
+
+          count++;
+          if (count <= 5) {
+            messageText.textContent = phrases[count - 1];
+            messageBox.classList.add("visible");
+          } else {
+            messageText.textContent = "Хватит пытаться, жми ДА!";
+          }
+
+          if (count === 7) {
+            screamer.style.display = "flex";
+            setTimeout(() => {
+              screamer.style.display = "none";
+            }, 2200);
+          }
+
+          const winW = window.innerWidth;
+          const winH = window.innerHeight;
+          const btnRect = activeNoBtn.getBoundingClientRect();
+          const btnW = btnRect.width;
+          const btnH = btnRect.height;
+          const limitW = winW * 0.8;
+          const limitH = winH * 0.8;
+          const minX = (winW - limitW) / 2;
+          const minY = (winH - limitH) / 2;
+          const maxX = minX + limitW - btnW;
+          const maxY = minY + limitH - btnH;
+          let newX = Math.random() * (maxX - minX) + minX;
+          let newY = Math.random() * (maxY - minY) + minY;
+          activeNoBtn.style.left = newX + "px";
+          activeNoBtn.style.top = newY + "px";
+        }
+
+        noBtn.addEventListener("mouseenter", moveNoButton);
+        noBtn.addEventListener("touchstart", moveNoButton, { passive: false });
+        noBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          moveNoButton(e);
+        });
+
+        yesBtn.addEventListener("click", () => {
+          messageText.textContent = "💖 Я ТОЖЕ ТЕБЯ ОЧЕНЬ СИЛЬНО ЛЮБЛЮ!!! 💖";
+          messageBox.style.background = "rgba(255,180,210,0.9)";
+          messageBox.classList.add("visible");
+
+          noBtn.style.display = "none";
+          if (activeNoBtn !== noBtn) activeNoBtn.style.display = "none";
+
+          finalOverlay.style.display = "flex";
+          startFireworks();
+
+          for (let i = 0; i < 40; i++) {
+            setTimeout(createFloatingHeart, i * 60);
+          }
+          yesBtn.style.transform = "scale(1.2)";
+          setTimeout(() => (yesBtn.style.transform = "scale(1)"), 200);
+        });
+      })();
     </script>
+
+    <div
+      style="
+        position: fixed;
+        bottom: 12px;
+        right: 20px;
+        color: rgba(180, 60, 80, 0.5);
+        font-size: 14px;
+        z-index: 100;
+        backdrop-filter: blur(2px);
+        padding: 6px 15px;
+        border-radius: 40px;
+        background: rgba(255, 255, 255, 0.3);
+      "
+    >
+      <i class="fas fa-heart"></i> для тебя с любовью
+    </div>
   </body>
 </html>
